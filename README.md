@@ -2,7 +2,9 @@
 
 A customizable Pomodoro Timer application built with PyQt5 that helps you manage your work sessions and breaks effectively.
 
-![PomodoroLab Screenshot](screenshot.png)
+## Screenshot
+
+<img src="screenshot.png" width="400" alt="PomodoroLab Screenshot">
 
 ## ✨ Features
 
