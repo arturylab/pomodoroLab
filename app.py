@@ -89,6 +89,11 @@ class PomodoroTimer(QMainWindow):
 
         main_layout.addWidget(settings_frame)
 
+        # Connect settings changes
+        self.work_time.timeChanged.connect(self.update_work_time)
+        self.break_time.timeChanged.connect(self.update_break_time)
+        self.rounds.valueChanged.connect(self.update_rounds)
+
         # System Control Buttons
         self.restart_btn = QPushButton("Restart")
         self.restart_btn.clicked.connect(self.reset_timer)
@@ -148,8 +153,9 @@ class PomodoroTimer(QMainWindow):
         self.pause_timer()
         self.current_session = "work"
         self.rounds_completed = 0
-        self.update_initial_time()
+        self.remaining_time = self._calculate_remaining_time()
         self.update_status_text()
+        self.update_display()
 
     def update_initial_time(self):
         """Calculate initial time based on current session type"""
@@ -204,6 +210,28 @@ class PomodoroTimer(QMainWindow):
         minutes = self.remaining_time // 60
         seconds = self.remaining_time % 60
         self.timer_display.setText(f"{minutes:02}:{seconds:02}")
+    
+    def update_work_time(self):
+        """Update work time when QTimeEdit is modified"""
+        self.remaining_time = self._calculate_remaining_time()
+
+    def update_break_time(self):
+        """Update break time when QTimeEdit is modified"""
+        # Only update if the timer is in "break" mode
+        if self.current_session == "break":
+            self.remaining_time = self._calculate_remaining_time()
+
+    def update_rounds(self):
+        """Update the number of rounds when QSpinBox is modified"""
+        # No immediate action required, will apply in the next cycle
+        pass
+
+    def _calculate_remaining_time(self):
+        """Calculate remaining time based on the current session"""
+        if self.current_session == "work":
+            return self.work_time.time().minute() * 60 + self.work_time.time().second()
+        else:
+            return self.break_time.time().minute() * 60 + self.break_time.time().second()
 
 
 if __name__ == "__main__":
