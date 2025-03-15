@@ -38,3 +38,8 @@ create-dmg \
   "dist/PomodoroLab.app"
 
 echo "✅ DMG created successfully: ${DMG_NAME}"
+
+# Clean up build directories after DMG creation
+echo "🧹 Cleaning up build directories..."
+rm -rf build dist
+echo "✅ Cleanup complete"
