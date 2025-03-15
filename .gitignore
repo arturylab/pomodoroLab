@@ -1,12 +1,2 @@
 venv/
 .vscode/
-# deploy/macos specific
-.DS_Store
-*.app
-dist/
-build/
-*.pyc
-__pycache__/
-.Python
-venv/
-*.dmg
