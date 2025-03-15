@@ -8,18 +8,35 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QPushButton, QTimeEdit,
                              QSpinBox, QFrame)
 from PyQt5.QtCore import QTimer, Qt, QTime
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtMultimedia import QSound
+
+
+import os
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
+
 
 class PomodoroTimer(QMainWindow):
     def __init__(self):
         super().__init__()
         # Initialize window properties
-        self.setWindowTitle('PomodoroLab App')
+        self.setWindowTitle('PomodoroLab')
         self.setFixedSize(400, 400)
 
+        # Icon application
+        self.setWindowIcon(QIcon(resource_path("icon.png")))
+
         # Audio configuration
-        self.sound_file = "alarm.wav"
+        self.sound_file = resource_path("alarm.wav")
 
         # Timer state management
         self.is_running = False        # Track if timer is active
