@@ -5,7 +5,7 @@ Author: arturyLab
 
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
-                             QHBoxLayout, QLabel, QPushButton, QTimeEdit,
+                             QHBoxLayout, QLabel, QGridLayout,QPushButton, QTimeEdit,
                              QSpinBox, QFrame)
 from PyQt5.QtCore import QTimer, Qt, QTime
 from PyQt5.QtGui import QFont
@@ -54,37 +54,48 @@ class PomodoroTimer(QMainWindow):
         # Control Buttons Section
         self.play_pause_btn = QPushButton("Play")
         self.play_pause_btn.clicked.connect(self.toggle_timer)
-        main_layout.addWidget(self.play_pause_btn)
+        self.play_pause_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4b88a2;
+                border-radius: 6px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            QPushButton:pressed {
+                background-color: #67a5bf;
+            }
+        """)
+        main_layout.addWidget(self.play_pause_btn, alignment=Qt.AlignCenter)
 
         # Settings Configuration Panel
         settings_frame = QFrame()
-        settings_layout = QVBoxLayout(settings_frame)
+        settings_layout = QHBoxLayout(settings_frame)
 
         # Work Duration Configuration
-        timer_layout = QHBoxLayout()
-        timer_layout.addWidget(QLabel("Timer:"))
+        timer_layout = QGridLayout()
+        timer_layout.addWidget(QLabel("Timer:"), 0, 0, alignment=Qt.AlignCenter)
         self.work_time = QTimeEdit()
         self.work_time.setDisplayFormat("mm:ss")
         self.work_time.setTime(QTime(0, 50, 0)) # Default work time 50 minutes
-        timer_layout.addWidget(self.work_time)
+        timer_layout.addWidget(self.work_time, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(timer_layout)
 
         # Break Duration Configuration
-        break_layout = QHBoxLayout()
-        break_layout.addWidget(QLabel("Break:"))
+        break_layout = QGridLayout()
+        break_layout.addWidget(QLabel("Break:"), 0 ,0, alignment=Qt.AlignCenter)
         self.break_time = QTimeEdit()
         self.break_time.setDisplayFormat("mm:ss")
         self.break_time.setTime(QTime(0, 10, 0)) # Default brake time 10 minutes
-        break_layout.addWidget(self.break_time)
+        break_layout.addWidget(self.break_time, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(break_layout)
 
         # Rounds Configuration
-        rounds_layout = QHBoxLayout()
-        rounds_layout.addWidget(QLabel("Rounds:"))
+        rounds_layout = QGridLayout()
+        rounds_layout.addWidget(QLabel("Rounds:"), 0, 0, alignment=Qt.AlignCenter)
         self.rounds = QSpinBox()
         self.rounds.setRange(1, 10) # Minimum 1, Maximum 10 rounds
         self.rounds.setValue(3) # Default rounds 2
-        rounds_layout.addWidget(self.rounds)
+        rounds_layout.addWidget(self.rounds, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(rounds_layout)
 
         main_layout.addWidget(settings_frame)
@@ -97,7 +108,18 @@ class PomodoroTimer(QMainWindow):
         # System Control Buttons
         self.restart_btn = QPushButton("Restart")
         self.restart_btn.clicked.connect(self.reset_timer)
-        main_layout.addWidget(self.restart_btn)
+        self.restart_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #bb0a21;
+                border-radius: 6px;
+                min-width: 10em;
+                padding: 6px;
+            }
+            QPushButton:pressed {
+                background-color: #d43c50;
+            }
+        """)
+        main_layout.addWidget(self.restart_btn, alignment=Qt.AlignCenter)
 
         # Timer Mechanisn Setup
         self.timer = QTimer()
@@ -108,8 +130,7 @@ class PomodoroTimer(QMainWindow):
         self.developer_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.developer_label.setStyleSheet("""
             QLabel {
-                font-size: 9px;
-                color: #666;
+                font-size: 10px;
                 padding: 2px;
             }
         """)
@@ -179,9 +200,9 @@ class PomodoroTimer(QMainWindow):
 
     def handle_session_end(self):
         """Manage session transitions and round completion"""
+        QSound.play(self.sound_file) # Play alarm
         if self.current_session == "work":
             self.rounds_completed += 1
-            QSound.play(self.sound_file) # Play alarm
             
             # Check if all rounds completed
             if self.rounds_completed >= self.rounds.value():
