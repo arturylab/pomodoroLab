@@ -8,15 +8,18 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QGridLayout,QPushButton, QTimeEdit,
                              QSpinBox, QFrame)
 from PyQt5.QtCore import QTimer, Qt, QTime
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtMultimedia import QSound
 
 class PomodoroTimer(QMainWindow):
     def __init__(self):
         super().__init__()
         # Initialize window properties
-        self.setWindowTitle('PomodoroLab App')
+        self.setWindowTitle('PomodoroLab')
         self.setFixedSize(400, 400)
+
+        # Icon application
+        self.setWindowIcon(QIcon("icon.png"))
 
         # Audio configuration
         self.sound_file = "alarm.wav"
