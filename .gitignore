@@ -1,2 +1,8 @@
 venv/
 .vscode/
+#deploy/macos
+build_dmg.sh
+setup.py
+pomodoro.py
+icon.icns
+*dmg
