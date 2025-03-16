@@ -1,2 +1,7 @@
 venv/
 .vscode/
+build_dmg.sh
+icon.icns
+icon.png
+pomodoro.py
+setup.py
