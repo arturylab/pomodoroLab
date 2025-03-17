@@ -59,13 +59,14 @@ class PomodoroTimer(QMainWindow):
         self.play_pause_btn.clicked.connect(self.toggle_timer)
         self.play_pause_btn.setStyleSheet("""
             QPushButton {
-                background-color: #4b88a2;
+                background-color: #28A745;
+                color: white;
                 border-radius: 6px;
                 min-width: 10em;
                 padding: 6px;
             }
             QPushButton:pressed {
-                background-color: #67a5bf;
+                background-color: #5AC66E;
             }
         """)
         main_layout.addWidget(self.play_pause_btn, alignment=Qt.AlignCenter)
@@ -113,13 +114,14 @@ class PomodoroTimer(QMainWindow):
         self.restart_btn.clicked.connect(self.reset_timer)
         self.restart_btn.setStyleSheet("""
             QPushButton {
-                background-color: #bb0a21;
+                background-color: #FD7E14;
+                color: white;
                 border-radius: 6px;
                 min-width: 10em;
                 padding: 6px;
             }
             QPushButton:pressed {
-                background-color: #d43c50;
+                background-color: #FFA75A;
             }
         """)
         main_layout.addWidget(self.restart_btn, alignment=Qt.AlignCenter)
