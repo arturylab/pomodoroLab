@@ -1,7 +1,4 @@
 venv/
 .vscode/
 #deploy/macos
-build_dmg.sh
-setup.py
-icon.icns
 *dmg
