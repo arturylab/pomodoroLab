@@ -9,8 +9,8 @@ OPTIONS = {
     'plist': {
         'CFBundleName': 'PomodoroLab',
         'CFBundleDisplayName': 'PomodoroLab',
-        'CFBundleVersion': "1.1.0",
-        'CFBundleShortVersionString': "1.1.0",
+        'CFBundleVersion': "1.2.0",
+        'CFBundleShortVersionString': "1.2.0",
         'CFBundleIdentifier': "com.arturylab.pomodorolab",
         'LSMinimumSystemVersion': "10.10",
         'CFBundleIconFile': 'icon.icns',
@@ -22,7 +22,7 @@ OPTIONS = {
 setup(
     app=APP,
     name='PomodoroLab',
-    version='1.1.1',
+    version='1.2.0',
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],

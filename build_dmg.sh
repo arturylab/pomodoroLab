@@ -2,7 +2,7 @@
 # Script to build the application and create a DMG
 
 # Version management
-VERSION="1.1.1"
+VERSION="1.2.0"
 DMG_NAME="PomodoroLab-${VERSION}.dmg"
 
 echo "🔄 Building PomodoroLab version ${VERSION}"
