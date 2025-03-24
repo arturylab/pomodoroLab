@@ -16,7 +16,7 @@ class PomodoroTimer(QMainWindow):
         super().__init__()
         # Initialize window properties
         self.setWindowTitle('PomodoroLab')
-        self.setFixedSize(400, 400)
+        self.setFixedSize(400, 500)
 
         # Icon application
         self.setWindowIcon(QIcon("icon.png"))
@@ -29,6 +29,8 @@ class PomodoroTimer(QMainWindow):
         self.remaining_time = 0        # Seconds remaining in current session
         self.current_session = "work"  # Current session type (work/break)
         self.rounds_completed = 0      # Completed work sessions counter
+        self.current_config_index = 0  # Initialize configuration index
+        self.config = ['Classic', 'Deep Focus', '60/15 Technique', 'Short Sprint', 'Flex Mode']  # Configuration options
 
         # Initialize UI components and timer
         self.init_ui()
@@ -41,46 +43,107 @@ class PomodoroTimer(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
 
-        # Main Timer Display Section
-        self.timer_display = QLabel("50:00")
-        self.timer_display.setFont(QFont("Arial", 100))
-        self.timer_display.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(self.timer_display)
+        # Button styling
+        self.setStyleSheet("""
+            QPushButton {
+                color: white;
+                border: none;
+            }
+        """)
 
         # Session Status Display
-        self.status_label = QLabel("Working")
-        self.status_label.setFont(QFont("Arial", 22))
+        self.status_label = QLabel("")
+        self.status_label.setFont(QFont("Arial", 20))
         self.status_label.setAlignment(Qt.AlignCenter)
         self.status_label.hide()
         main_layout.addWidget(self.status_label)
 
-        # Control Buttons Section
-        self.play_pause_btn = QPushButton("Play")
-        self.play_pause_btn.clicked.connect(self.toggle_timer)
-        self.play_pause_btn.setStyleSheet("""
+        # Main Timer Display Section
+        self.timer_display = QLabel("")
+        self.timer_display.setFont(QFont("Arial", 100))
+        self.timer_display.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.timer_display)
+
+        #Standard Configuration
+        self.standard_label = QLabel("🍅 Classic")
+        self.standard_label.setFont(QFont("Arial", 20))
+        self.standard_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.standard_label)
+
+        # Seetings Buttons Section
+        btn_frame = QFrame()
+        btn_layout = QHBoxLayout(btn_frame)
+
+        # Control Buttons Section (Forward)
+        self.left_btn = QPushButton("◀︎")
+        self.left_btn.setFixedSize(30, 30)  # Set fixed size for smaller circular shape
+        self.left_btn.clicked.connect(self.toggle_config_left)
+        self.left_btn.setStyleSheet("""
             QPushButton {
                 background-color: #28A745;
-                color: white;
-                border-radius: 6px;
-                min-width: 10em;
-                padding: 6px;
+                border-radius: 15px;
+                font-size: 14px;
             }
             QPushButton:pressed {
                 background-color: #5AC66E;
             }
         """)
-        main_layout.addWidget(self.play_pause_btn, alignment=Qt.AlignCenter)
+        btn_layout.addWidget(self.left_btn, alignment=Qt.AlignCenter)
+        
+
+        # Control Buttons Section (Play/Pause)
+        self.play_pause_btn = QPushButton("Play")
+        self.play_pause_btn.setFixedSize(60, 60)  # Set fixed size for smaller circular shape
+        self.play_pause_btn.clicked.connect(self.toggle_timer)
+        self.play_pause_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #28A745;
+                border-radius: 30px;
+                font-size: 28px;
+            }
+            QPushButton:pressed {
+                background-color: #5AC66E;
+            }
+        """)
+        btn_layout.addWidget(self.play_pause_btn, alignment=Qt.AlignCenter)
+
+        # Control Buttons Section (Forward)
+        self.right_btn = QPushButton("►")
+        self.right_btn.setFixedSize(30, 30)  # Set fixed size for smaller circular shape
+        self.right_btn.clicked.connect(self.toggle_config_right)
+        self.right_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #28A745;
+                border-radius: 15px;
+                font-size: 14px;
+            }
+            QPushButton:pressed {
+                background-color: #5AC66E;
+            }
+        """)
+        btn_layout.addWidget(self.right_btn, alignment=Qt.AlignCenter)
+
+        main_layout.addWidget(btn_frame)
 
         # Settings Configuration Panel
         settings_frame = QFrame()
         settings_layout = QHBoxLayout(settings_frame)
+
+        settings_frame.setStyleSheet("""
+            QLabel {
+            font-size: 16px; /* Increase font size for labels */
+            }
+            QTimeEdit, QSpinBox {
+            font-size: 16px; /* Increase font size for buttons */
+            }
+        """)
 
         # Work Duration Configuration
         timer_layout = QGridLayout()
         timer_layout.addWidget(QLabel("Timer:"), 0, 0, alignment=Qt.AlignCenter)
         self.work_time = QTimeEdit()
         self.work_time.setDisplayFormat("mm:ss")
-        self.work_time.setTime(QTime(0, 50, 0)) # Default work time 50 minutes
+        self.work_time.setTime(QTime(0, 25, 0)) # Default work time 25 minutes (Classic)
         timer_layout.addWidget(self.work_time, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(timer_layout)
 
@@ -89,7 +152,7 @@ class PomodoroTimer(QMainWindow):
         break_layout.addWidget(QLabel("Break:"), 0 ,0, alignment=Qt.AlignCenter)
         self.break_time = QTimeEdit()
         self.break_time.setDisplayFormat("mm:ss")
-        self.break_time.setTime(QTime(0, 10, 0)) # Default brake time 10 minutes
+        self.break_time.setTime(QTime(0, 5, 0)) # Default break time 5 minutes (Classic)
         break_layout.addWidget(self.break_time, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(break_layout)
 
@@ -98,7 +161,7 @@ class PomodoroTimer(QMainWindow):
         rounds_layout.addWidget(QLabel("Rounds:"), 0, 0, alignment=Qt.AlignCenter)
         self.rounds = QSpinBox()
         self.rounds.setRange(1, 10) # Minimum 1, Maximum 10 rounds
-        self.rounds.setValue(3) # Default rounds 2
+        self.rounds.setValue(4) # Default rounds 4 (Classic)
         rounds_layout.addWidget(self.rounds, 1, 0, alignment=Qt.AlignCenter)
         settings_layout.addLayout(rounds_layout)
 
@@ -111,17 +174,17 @@ class PomodoroTimer(QMainWindow):
 
         # System Control Buttons
         self.restart_btn = QPushButton("Restart")
+        self.restart_btn.setFixedSize(60, 60)
         self.restart_btn.clicked.connect(self.reset_timer)
         self.restart_btn.setStyleSheet("""
             QPushButton {
-                background-color: #FD7E14;
-                color: white;
-                border-radius: 6px;
-                min-width: 10em;
-                padding: 6px;
+            background-color: #DC3545;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
             }
             QPushButton:pressed {
-                background-color: #FFA75A;
+            background-color: #E57373;
             }
         """)
         main_layout.addWidget(self.restart_btn, alignment=Qt.AlignCenter)
@@ -147,11 +210,13 @@ class PomodoroTimer(QMainWindow):
             self.pause_timer()
         else:
             self.start_timer()
+            self.left_btn.setEnabled(False)
+            self.right_btn.setEnabled(False)
 
     def start_timer(self):
         """Start the timer and initialize session tracking"""
         self.is_running = True
-        self.play_pause_btn.setText("Pause")
+        self.play_pause_btn.setText("⏸")
         self.timer.start(1000) # Update every second (1000ms)
 
         self.status_label.show()
@@ -165,11 +230,10 @@ class PomodoroTimer(QMainWindow):
     def pause_timer(self):
         """Pause the timer and unlock configuration controls"""
         self.is_running = False
-        self.play_pause_btn.setText("Play")
+        self.play_pause_btn.setText("▶")
         self.timer.stop()
-
-        # Hide status and enable configuration edits
         self.status_label.hide()
+
         self.work_time.setEnabled(True)
         self.break_time.setEnabled(True)
         self.rounds.setEnabled(True)
@@ -182,6 +246,8 @@ class PomodoroTimer(QMainWindow):
         self.remaining_time = self._calculate_remaining_time()
         self.update_status_text()
         self.update_display()
+        self.left_btn.setEnabled(True)
+        self.right_btn.setEnabled(True)
 
     def update_initial_time(self):
         """Calculate initial time based on current session type"""
@@ -224,12 +290,70 @@ class PomodoroTimer(QMainWindow):
     def update_status_text(self):
         """Update status label with current session information"""
         total_rounds = self.rounds.value()
+
         if self.current_session == "work":
             session_number = self.rounds_completed + 1
-            self.status_label.setText(f"Session {session_number} of {total_rounds}")
-        else:
+
+            if session_number == 1:
+                emoji = "🚀"  # Motivational start
+            elif session_number == total_rounds:
+                emoji = "✅"  # Final session
+            else:
+                emoji = "🔥"  # Session in progress
+
+            self.status_label.setText(f"{emoji} Session {session_number} of {total_rounds}")
+
+        else:  # Break session
             break_number = self.rounds_completed
-            self.status_label.setText(f"Break {break_number}")
+
+            if break_number == total_rounds:
+                emoji = "🌿"  # Final long break
+            else:
+                emoji = "☕"  # Short break
+
+            self.status_label.setText(f"{emoji} Break {break_number}")
+
+    def update_standard_text(self):
+        """Update standard label with current session information"""
+        current_config = self.config[self.current_config_index]
+        if current_config == "Classic":
+            self.standard_label.setText(f"🍅 Classic")
+            self.work_time.setTime(QTime(0, 25, 0))
+            self.break_time.setTime(QTime(0, 5, 0))
+            self.rounds.setValue(4)
+        elif current_config == "Deep Focus":
+            self.standard_label.setText(f"🎯 Deep Focus")
+            self.work_time.setTime(QTime(0, 50, 0))
+            self.break_time.setTime(QTime(0, 10, 0))
+            self.rounds.setValue(3)
+        elif current_config == "60/15 Technique":
+            self.standard_label.setText(f"⏳ 60/15 Technique")
+            self.work_time.setTime(QTime(0, 59, 59))
+            self.break_time.setTime(QTime(0, 15, 0))
+            self.rounds.setValue(2)
+        elif current_config == "Short Sprint":
+            self.standard_label.setText(f"⚡ Short Sprint")
+            self.work_time.setTime(QTime(0, 15, 0))
+            self.break_time.setTime(QTime(0, 3, 0))
+            self.rounds.setValue(8)
+        elif current_config == "Flex Mode":
+            self.standard_label.setText(f"🔄 Flex Mode")
+            self.work_time.setTime(QTime(0, 20, 0))
+            self.break_time.setTime(QTime(0, 5, 0))
+            self.rounds.setValue(6)
+
+        # Update the timer display based on the new work time
+        self.update_initial_time()
+
+    def toggle_config_left(self):
+        """Change config left"""
+        self.current_config_index = (self.current_config_index - 1) % len(self.config)
+        self.update_standard_text()
+
+    def toggle_config_right(self):
+        """Change config right"""
+        self.current_config_index = (self.current_config_index + 1) % len(self.config)
+        self.update_standard_text()
 
     def update_display(self):
         """Update main timer display with formatted time"""
